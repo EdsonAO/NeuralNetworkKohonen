@@ -1,9 +1,19 @@
 #include <GL/glut.h>
+#include <fstream>
 #include <stdlib.h>
 #include <math.h>
+
 #define PI 3.14159265
 
-float rotacion_sol = 0.0;
+using namespace std;
+
+void save_axis(int x,int y,int z)
+{
+	ofstream archivo;
+	archivo.open("coordenadas.txt",ios::app);
+	archivo <<x<<" "<<y<<" "<<z<< endl;
+    archivo.close();
+}
 
 static void resize(int width, int height){
 const float ar = (float) width / (float) height;
@@ -33,7 +43,8 @@ for (int i = 0; i < tam_square; ++i)
 			{	
 				glPushMatrix();
 				glTranslatef (j,i,k);
-				glColor3f(1,1,1);
+				save_axis(j,i,k);
+				glColor3f(1,1,1);	
 				glutWireSphere(0.4,20,20);
 				glPopMatrix();
 	
@@ -82,6 +93,7 @@ void ControlFlechas(int key, int x, int y) {
   }
   glutPostRedisplay();
 }
+
 
 int main(int argc, char *argv[])
 {
