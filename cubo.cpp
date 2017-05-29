@@ -1,18 +1,28 @@
 #include <GL/glut.h>
 #include <fstream>
+#include <iostream>
 #include <stdlib.h>
 #include <math.h>
-
+#include <vector>
 #define PI 3.14159265
 
 using namespace std;
 
-void save_axis(int x,int y,int z)
+
+typedef vector< vector<int> > coords_;
+int tam_square = 5;
+coords_ my_vect;
+
+void save_axis()
 {
 	ofstream archivo;
-	archivo.open("coordenadas.txt",ios::app);
-	archivo <<x<<" "<<y<<" "<<z<< endl;
-    archivo.close();
+	archivo.open("coordenadas.txt");
+    for (int i = 0; i < my_vect.size(); ++i)
+	{   
+		int pos_i=my_vect[i][0], pos_j=my_vect[i][1], pos_k=my_vect[i][2];
+		archivo <<pos_i<<" "<<pos_j<<" "<<pos_k<< endl;
+	}
+	archivo.close();
 }
 
 static void resize(int width, int height){
@@ -26,42 +36,54 @@ glMatrixMode(GL_MODELVIEW);
 glLoadIdentity();
 }
 
+void crear_esferas(int tam_square ,coords_ &vect)
+{
+	
+	for (int i = 0; i < tam_square; ++i)
+	{
+		for (int j = 0; j < tam_square; ++j)
+		{
+			for (int k = 0; k < tam_square; ++k)
+			{
+				vector<int> tmp;
+				tmp.push_back(i);
+				tmp.push_back(j);
+				tmp.push_back(k);
+				vect.push_back(tmp);
+			    tmp.empty();
+			}
+		}
+
+	}
+}
+
 
 static void display(void){
 
 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 glColor3d(1,0,0);
-int tam_square = 5;
 
-for (int i = 0; i < tam_square; ++i)
-{
-	for (int j = 0; j < tam_square; ++j)
-	{
-		for (int k = 0; k < tam_square; ++k)
+	for (int i = 0; i < my_vect.size(); ++i)
+	{   
+		int pos_i=my_vect[i][0], pos_j=my_vect[i][1], pos_k=my_vect[i][2];
+		if (pos_i==0 || pos_j==0 ||pos_k==0)
+		{	
+			glPushMatrix();
+			glTranslatef (pos_j,pos_i,pos_k);
+			glColor3f(1,1,1);	
+			glutWireSphere(0.4,20,20);
+			glPopMatrix();
+		
+		}
+		else
 		{
-			if (i==0 || j==0 ||k==0)
-			{	
-				glPushMatrix();
-				glTranslatef (j,i,k);
-				save_axis(j,i,k);
-				glColor3f(1,1,1);	
-				glutWireSphere(0.4,20,20);
-				glPopMatrix();
-	
-			}
-			else
-			{
-				glPushMatrix();
-				glTranslatef (j,i,k);
-				glColor3f(1.0,1.0,0.0);
-				glutWireSphere(0.4,20,20);
-				glPopMatrix();
-			}
-
+			glPushMatrix();
+			glTranslatef (pos_j,pos_i,pos_k);
+			glColor3f(1.0,1.0,0.0);
+			glutWireSphere(0.4,20,20);
+			glPopMatrix();
 		}
 	}
-
-}
 
 
 glutSwapBuffers();
@@ -105,6 +127,8 @@ int main(int argc, char *argv[])
 	glutCreateWindow("GG las Pelotas");
 
 	glutReshapeFunc(resize);
+	crear_esferas(tam_square,my_vect);
+	save_axis();
 	glutDisplayFunc(display);
 	glutSpecialFunc(ControlFlechas);
 	glutIdleFunc(idle);
